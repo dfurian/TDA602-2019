@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">MAC Location</string>
+    <string name="menu_save">Save to database</string>
+    <string name="menu_load">Load from database</string>
+    <string name="menu_clear">Clear</string>
+    <string name="menu_load_web">Load from URL</string>
+    <string name="menu_exfiltrate">Exfiltrate</string>
+    <string name="url_title">RequestBin URL</string>
+    <string name="mac_error">Cannot read MAC address - are you connected to a WiFi network?</string>
+    <string name="mac_address">MAC Address: </string>
+    <string name="data_loaded">Data loaded</string>
+    <string name="data_loaded_fail">Failed to load data</string>
+    <string name="data_saved">Saved to database</string>
+    <string name="data_saved_fail">Failed to save to database</string>
+    <string name="empty_message">No data! Record new data, or load from the database.</string>
+    <string name="record_data_exfiltrate">No data to exfiltrate.</string>
+    <string name="url_error">Unable to open URL provided.</string>
+</resources>
