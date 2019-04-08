@@ -47,7 +47,17 @@ public class Wallet {
    * @throws Exception if balance is insufficient
    */
   public void safeWithdraw(int valueToWithdraw) throws Exception {
-    // ...
+    // read balance from file
+    int balance = getBalance();
+    // verify the amount
+    if( balance < valueToWithdraw ){
+      // exception if balance is low
+      throw new Exception("Insufficient balance");
+    }else{
+      // update balance otherwise
+      int newBalance = balance - valueToWithdraw;
+      setBalance( newBalance );
+    }
   }
 
   /**
