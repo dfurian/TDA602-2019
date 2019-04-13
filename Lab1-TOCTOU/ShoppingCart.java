@@ -16,7 +16,28 @@ public class ShoppingCart {
     }
     System.out.println('\n');
   }
+
+  // displays current balance and list of items
+  private static void displayStore(int balance){
+    // print balance
+    System.out.println(new StringBuilder().append("Current balance: ").append(balance).toString());
+    printLine(LENGTH);
+    // print items
+    System.out.print(Store.asString());
+    printLine(LENGTH);
+  }
   
+  // lets the user select an item to purchase and returns the name
+  private static String chooseItem() throws IllegalArgumentException, IOException{
+    // select an item
+    System.out.print("Specify an item to purchase:\t");
+    BufferedReader scanner = new BufferedReader(new InputStreamReader(System.in));
+    String itemToBuy = scanner.readLine().trim();
+    printLine(LENGTH);
+    // return name of selected item
+    return itemToBuy;
+  }
+
   // actual programme
   private static void printUI() throws IOException {
     System.out.print(UI);
@@ -27,31 +48,30 @@ public class ShoppingCart {
   private static void badImplementation(Wallet wallet, Pocket pocket) throws IOException, 
                                                                              UnsupportedOperationException, 
                                                                              Exception {
-    int balance = new Wallet().getBalance();
-    // print balance
-    System.out.println(new StringBuilder().append("Current balance: ").append(balance).toString());
-    printLine(LENGTH);
-    // print items
-    System.out.print(Store.asString());
-    printLine(LENGTH);
-    // select an item
-    System.out.print("Specify an item to purchase:\t");
-    BufferedReader scanner = new BufferedReader(new InputStreamReader(System.in));
-    String itemToBuy = scanner.readLine().trim();
-    printLine(LENGTH);
-    // subtract item price from client wallet
+    int balance = wallet.getBalance();
+    System.out.println("### BAD IMPLEMENTATION ###");
+    displayStore( balance );
+    String itemToBuy = chooseItem();
     int price = Store.getProductPrice(itemToBuy);
     int newBalance = balance - price;
     if(newBalance < 0) {
       throw new UnsupportedOperationException();
     }
     wallet.setBalance(newBalance);
-    System.out.println("Your new balance: " + newBalance);
-    wallet.close();
-    // add item to client pocket
     pocket.addProduct(itemToBuy + "\r\n");
-    System.out.println("Thank you for your business!");
-    pocket.close();
+  }
+
+  // task 2: API fixed (using Wallet.safeWithdraw)
+  private static void correctImplementation(Wallet wallet, Pocket pocket) throws IOException, 
+                                                                                 UnsupportedOperationException, 
+                                                                                 Exception {
+    int balance = wallet.getBalance();
+    System.out.println("### CORRECT IMPLEMENTATION ###");
+    displayStore( balance );
+    String itemToBuy = chooseItem();
+    int price = Store.getProductPrice(itemToBuy);
+    wallet.safeWithdraw(price);
+    pocket.addProduct(itemToBuy + "\r\n");
   }
   
   // main method
@@ -61,13 +81,21 @@ public class ShoppingCart {
       // init client attributes
       Pocket pocket = new Pocket();
       Wallet wallet = new Wallet();
+      // bad: read balance once
       badImplementation(wallet, pocket);
+      // good: keep track of balance
+//      correctImplementation(wallet, pocket);
+      // add item to client pocket
+      System.out.println("Your new balance: " + wallet.getBalance());
+      System.out.println("Thank you for your business!");
+      wallet.close();
+      pocket.close();
     } catch (IllegalArgumentException e) {
       System.out.println("The item specified is not available.");
     } catch (UnsupportedOperationException e) {
       System.out.println("Insufficient balance.");
     } catch (Exception e) {
       System.out.println("An error has occurred: " + e.getMessage());
-    }
+    } 
   }
 }
