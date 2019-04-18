@@ -82,9 +82,9 @@ public class ShoppingCart {
       Pocket pocket = new Pocket();
       Wallet wallet = new Wallet();
       // bad: read balance once
-      badImplementation(wallet, pocket);
+//      badImplementation(wallet, pocket);
       // good: keep track of balance
-//      correctImplementation(wallet, pocket);
+      correctImplementation(wallet, pocket);
       // add item to client pocket
       System.out.println("Your new balance: " + wallet.getBalance());
       System.out.println("Thank you for your business!");
