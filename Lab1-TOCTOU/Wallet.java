@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 public class Wallet {
 
-	private static Logger log = Logger.getLogger(Wallet.class.getSimpleName());
+    //	private static Logger log = Logger.getLogger(Wallet.class.getSimpleName());
 
 	/**
 	 * The RandomAccessFile of the wallet file
@@ -58,27 +58,27 @@ public class Wallet {
 	 * @throws Exception
 	 *             if balance is insufficient
 	 */
-	public synchronized void safeWithdraw(int valueToWithdraw) throws Exception {
-		log.info("asking for lock; this operation is blocking");
-		FileLock lock = file.getChannel().lock();
-		log.info("lock acquired; program has now exclusive access to wallet.txt");
-		Thread.sleep(3000);// testing purposes
-		try {
-			// read balance from file
-			int balance = getBalance();
-			// verify the amount
-			if (balance < valueToWithdraw) {
-				// exception if balance is low
-				throw new Exception("Insufficient balance");
-			} else {
-				// update balance otherwise
-				setBalance(balance - valueToWithdraw);
-			}
-		} finally {
-			lock.close();
-		}
+    public synchronized void safeWithdraw(int valueToWithdraw) throws Exception {
+	//		log.info("asking for lock; this operation is blocking");
+	FileLock lock = file.getChannel().lock();
+	//	log.info("lock acquired; program has now exclusive access to wallet.txt");
+	Thread.sleep(3000);// testing purposes
+	try {
+	    // read balance from file
+	    int balance = getBalance();
+	    // verify the amount
+	    if (balance < valueToWithdraw) {
+		// exception if balance is low
+		throw new Exception("Insufficient balance");
+	    } else {
+		// update balance otherwise
+		setBalance(balance - valueToWithdraw);
+	    }
+	} finally {
+	    lock.close();
 	}
-
+    }
+    
 	/**
 	 * Closes the RandomAccessFile in this.file
 	 */
