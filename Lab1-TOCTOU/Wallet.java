@@ -1,11 +1,17 @@
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.util.logging.Logger;
 
 public class Wallet {
+
+    //	private static Logger log = Logger.getLogger(Wallet.class.getSimpleName());
+
 	/**
 	 * The RandomAccessFile of the wallet file
 	 */
@@ -13,7 +19,7 @@ public class Wallet {
 
 	/**
 	 * Creates a Wallet object
-	 *
+	 * 
 	 * A Wallet object interfaces with the wallet RandomAccessFile
 	 */
 	public Wallet() throws Exception {
@@ -22,7 +28,7 @@ public class Wallet {
 
 	/**
 	 * Gets the wallet balance.
-	 *
+	 * 
 	 * @return The content of the wallet file as an integer
 	 */
 	public int getBalance() throws IOException {
@@ -32,8 +38,9 @@ public class Wallet {
 
 	/**
 	 * Sets a new balance in the wallet
-	 *
-	 * @param newBalance new balance to write in the wallet
+	 * 
+	 * @param newBalance
+	 *            new balance to write in the wallet
 	 */
 	public void setBalance(int newBalance) throws Exception {
 		this.file.setLength(0);
@@ -43,45 +50,35 @@ public class Wallet {
 
 	// task 2: Fix the API
 	/**
-	 * Withdraws a set value from the wallet balance, if possible; otherwise throws
-	 * an Exception
+	 * Withdraws a set value from the wallet balance, if possible; otherwise
+	 * throws an Exception
 	 * 
-	 * @param valueToWithdraw self-explanatory
-	 * @throws Exception if balance is insufficient
+	 * @param valueToWithdraw
+	 *            self-explanatory
+	 * @throws Exception
+	 *             if balance is insufficient
 	 */
-	public synchronized void safeWithdraw(int valueToWithdraw) throws Exception {
-		FileChannel fileChannel = file.getChannel();
-		System.out.println("asking for lock");
-		FileLock lock = fileChannel.lock();
-//		while (true) {
-//			if (lock != null) {
-//				System.out.println("Another instance is already running");
-//				lock = fileChannel.tryLock();
-//			} else {
-//				break;
-//			}
-//		}
-		// read balance from file
-		System.out.println("acquired lock");
-		int balance = getBalance();
-		Thread.sleep(10000);
-		// verify the amount
-		if (balance < valueToWithdraw) {
-			// exception if balance is low
-			throw new Exception("Insufficient balance");
-		} else {
-			int newBalance = balance - valueToWithdraw;
-			// update balance otherwise
-			try {
-				setBalance(newBalance);
-			} finally {
-				if (lock != null) {
-					lock.release();
-				}
-			}
-		}
+    public synchronized void safeWithdraw(int valueToWithdraw) throws Exception {
+	//		log.info("asking for lock; this operation is blocking");
+	FileLock lock = file.getChannel().lock();
+	//	log.info("lock acquired; program has now exclusive access to wallet.txt");
+	Thread.sleep(3000);// testing purposes
+	try {
+	    // read balance from file
+	    int balance = getBalance();
+	    // verify the amount
+	    if (balance < valueToWithdraw) {
+		// exception if balance is low
+		throw new Exception("Insufficient balance");
+	    } else {
+		// update balance otherwise
+		setBalance(balance - valueToWithdraw);
+	    }
+	} finally {
+	    lock.close();
 	}
-
+    }
+    
 	/**
 	 * Closes the RandomAccessFile in this.file
 	 */
