@@ -30,7 +30,7 @@ public class Pocket {
 		this.file.seek(this.file.length());
 		this.file.writeBytes('\n' + product);
 		// we're done writing: we can release the lock
-		fileLock.channel().close();
+		fileLock.close();
 	}
 
 	/**

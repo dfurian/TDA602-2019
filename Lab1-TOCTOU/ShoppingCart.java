@@ -57,7 +57,7 @@ public class ShoppingCart {
 			throw new UnsupportedOperationException();
 		}
 		wallet.setBalance(newBalance);
-		pocket.addProduct(itemToBuy + "\r\n");
+		pocket.addProduct(itemToBuy);
 	}
 
 	// task 2: API fixed (using Wallet.safeWithdraw)
