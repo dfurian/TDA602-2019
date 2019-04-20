@@ -11,7 +11,11 @@ HOW TO REPLICATE THE PROBLEM
                           ### Lab 1: TOCTOU                    ###
                          ### Shopping Cart                      ###
         ________________________________________________________________________________
-
+        Choose an implementation:
+            - enter [1] for the bad implementation;
+            - enter anything else for the good implementation.
+3. Type "1" and enter to boot the "bad implementation":
+        1
         ### BAD IMPLEMENTATION ###
         Current balance: 30000
         ________________________________________________________________________________
@@ -38,33 +42,23 @@ HOW TO REPLICATE THE PROBLEM
 
 HOW TO FIX THE PROBLEM
 
-1. Open the file ShoppingCart.java
-2. Comment line 85: 
-        //      badImplementation(wallet, pocket);
-3. Uncomment line 87:
-              correctImplementation(wallet, pocket);
-4. Save and close the file. Open a Terminal (or similar) in the current directory and compile the program.
-        >javac ShoppingCart.java
-5. Launch another Terminal in the same directory and start the ShoppingCart program on both windows:
-        >java ShoppingCart
-
-                           ### TDA602 Language-based security ###
-                          ### Lab 1: TOCTOU                    ###
-                         ### Shopping Cart                      ###
-        ________________________________________________________________________________
-
+1. Start the program as usual, but enter a value different from "1" to choose the "good implementation":
+        Choose an implementation
+                - enter [1] for the bad implementation;
+                - enter anything else for the good implementation.
+        i'll have a macchiato
         ### CORRECT IMPLEMENTATION ###
         Current balance: 30000
         ________________________________________________________________________________
 
-        car     30000
-        book    100
-        pen     40
-        candies 1
+        car	30000
+        book	100
+        pen	40
+        candies	1
         ________________________________________________________________________________
 
         Specify an item to purchase:
-6. Repeat steps 3 and 4 from the "bad implementation". The first transaction will succeed but the second will fail with the following output:
+2. Repeat steps 3 and 4 from the "bad implementation". The first transaction will succeed but the second will fail with the following output:
         Specify an item to purchase:    car
         ________________________________________________________________________________
 
