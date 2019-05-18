@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">No Permissions</string>
+    <string name="sdcard">Steal SD Card Contents</string>
+    <string name="appdata">Steal App Data</string>
+    <string name="iddata">Upload Identifying Data</string>
+
+</resources>
