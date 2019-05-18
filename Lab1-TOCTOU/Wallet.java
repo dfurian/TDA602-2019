@@ -54,7 +54,7 @@ public class Wallet {
 		// asking for lock; this operation is blocking so the program WILL stay here until a lock is acquired
 		FileLock lock = file.getChannel().lock();
 		// lock acquired; program has now exclusive access to wallet.txt
-//		Thread.sleep(3000);// testing purposes
+		Thread.sleep(3000);// testing purposes
 		try {
 			// read balance from file
 			int balance = getBalance();
