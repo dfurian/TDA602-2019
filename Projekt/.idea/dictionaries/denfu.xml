@@ -2,6 +2,7 @@
   <dictionary name="denfu">
     <words>
       <w>appdir</w>
+      <w>exfiltrate</w>
     </words>
   </dictionary>
 </component>

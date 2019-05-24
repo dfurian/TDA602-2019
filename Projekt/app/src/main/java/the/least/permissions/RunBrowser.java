@@ -1,17 +1,17 @@
-package boku.no.nopermission;
+package the.least.permissions;
 
 public class RunBrowser implements Runnable {
 	private String data;
-	private NoPermissionsActivity parent;
+	private MainActivity parent;
 
-	RunBrowser(NoPermissionsActivity parent, String data) {
+	RunBrowser(MainActivity parent, String data) {
 		super();
 		this.data = data;
 		this.parent = parent;
 	}
 	
 	public void run() {
-		parent.sendByBrowser(data);
+		parent.prepareForUpload(data);
 	}
 
 }

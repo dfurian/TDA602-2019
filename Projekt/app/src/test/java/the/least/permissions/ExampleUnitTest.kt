@@ -1,4 +1,4 @@
-package boku.no.nopermission
+package the.least.permissions
 
 import org.junit.Test
 
