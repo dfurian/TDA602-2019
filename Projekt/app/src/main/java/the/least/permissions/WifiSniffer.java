@@ -8,7 +8,7 @@ interface WifiListener {
     void onSniffed(String data);
 }
 
-class WifiSniffer extends AsyncTask<NetworkInfo.DetailedState, Void, String> {
+class WifiSniffer extends AsyncTask<NetworkInfo, Void, String> {
     private WifiListener listener;
 
     WifiSniffer(WifiListener listener) {
@@ -20,9 +20,9 @@ class WifiSniffer extends AsyncTask<NetworkInfo.DetailedState, Void, String> {
     private static final String TAG = "WifiSniffer";
 
     @Override
-    protected String doInBackground(NetworkInfo.DetailedState... strings) {
+    protected String doInBackground(NetworkInfo... info) {
         Log.d(TAG, "doInBackground start");
-        return strings[0].toString();
+        return info[0].toString();
     }
 
     @Override

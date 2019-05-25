@@ -3,7 +3,8 @@ package the.least.permissions;
 import java.util.Arrays;
 import java.util.List;
 
-public class InstalledAppUtils {
+@SuppressWarnings("WeakerAccess")
+class InstalledAppUtils {
 
     static final String APP_TWITTER = "com.twitter.android";
     static final String APP_TWITTER_LITE = "com.twitter.android.lite";
@@ -44,5 +45,9 @@ public class InstalledAppUtils {
 
     static Boolean isHealth(String appName) {
         return appName != null && APPS_HEALTH.contains(appName);
+    }
+
+    static Boolean keepTrackOf(String appName) {
+        return isSocial(appName) || isLgbt(appName) || isDiabetes(appName) || isFemale(appName) || isHealth(appName);
     }
 }
